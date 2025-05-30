@@ -1,6 +1,22 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ALB invoking Lambda function
 
+Parameters:
+  VpcId:
+    Type: String
+    Default: vpc-00e2430245457380c  # ← Replace this
+    Description: The VPC ID to launch the ALB into
+
+  Subnet1:
+    Type: String
+    Default: subnet-021a62e1ff2bf4b47  # ← Replace this
+    Description: Public Subnet 1 for ALB
+
+  Subnet2:
+    Type: String
+    Default: subnet-08f9b1c2e00d4ae07  # ← Replace this
+    Description: Public Subnet 2 for ALB
+
 Resources:
 
   # IAM Role for Lambda
@@ -53,7 +69,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow HTTP
-      VpcId: !ImportValue DefaultVPCId
+      VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -66,13 +82,16 @@ Resources:
     Properties:
       Name: ALBForLambda
       Scheme: internet-facing
-      Subnets: !ImportValue PublicSubnets
+      Subnets:
+        - !Ref Subnet1
+        - !Ref Subnet2
       SecurityGroups:
         - !Ref ALBSecurityGroup
 
   # Lambda Target Group
   LambdaTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: LambdaInvokePermission
     Properties:
       Name: LambdaTargetGroup
       TargetType: lambda
@@ -97,7 +116,8 @@ Resources:
       FunctionName: !Ref MyLambdaFunction
       Action: lambda:InvokeFunction
       Principal: elasticloadbalancing.amazonaws.com
-      SourceArn: !Ref LambdaTargetGroup
+      SourceArn: !Sub arn:aws:elasticloadbalancing:${AWS::Region}:${AWS::AccountId}:targetgroup/LambdaTargetGroup/*
+
 
 Outputs:
   ALBURL:
