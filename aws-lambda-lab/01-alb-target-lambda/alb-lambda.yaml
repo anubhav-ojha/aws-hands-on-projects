@@ -1,0 +1,105 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ALB invoking Lambda function
+
+Resources:
+
+  # IAM Role for Lambda
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LambdaAlbDemoRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  # Lambda Function
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ALBToLambdaFunction
+      Runtime: python3.12
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          def handler(event, context):
+              return {
+                  "statusCode": 200,
+                  "statusDescription": "200 OK",
+                  "isBase64Encoded": False,
+                  "headers": {
+                      "Content-Type": "application/json"
+                  },
+                  "body": "{\"message\": \"Hello from Lambda via ALB!\"}"
+              }
+
+  # ALB Security Group
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP
+      VpcId: !ImportValue DefaultVPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  # ALB
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: ALBForLambda
+      Scheme: internet-facing
+      Subnets: !ImportValue PublicSubnets
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+
+  # Lambda Target Group
+  LambdaTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: LambdaTargetGroup
+      TargetType: lambda
+      Targets:
+        - Id: !GetAtt MyLambdaFunction.Arn
+
+  # Listener
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref LambdaTargetGroup
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  # Permission for ALB to invoke Lambda
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref MyLambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: elasticloadbalancing.amazonaws.com
+      SourceArn: !Ref LambdaTargetGroup
+
+Outputs:
+  ALBURL:
+    Description: "Application Load Balancer DNS Name"
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
