@@ -1,4 +1,4 @@
-sic Commands — Quick Reference
+# 🔧 Day 2: Docker CLI and Basic Commands — Commands Only
 
 | Term          | Description                                                                |
 | ------------- | -------------------------------------------------------------------------- |
@@ -6,8 +6,6 @@ sic Commands — Quick Reference
 | **Container** | A running instance of that image (like an app running from a `.zip` file)  |
 
 ---
-
-## 📦 Docker Image & Container Commands
 
 ### 🔹 Pull an Image from DockerHub
 
