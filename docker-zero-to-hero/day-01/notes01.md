@@ -36,3 +36,62 @@ Make sure Docker is installed and running on your EC2 instance.
 ```bash
 docker --version
 docker info
+```
+
+### ✅ Step 2: Run Your First Container
+
+```bash
+docker run hello-world
+```
+
+**What this does:**
+- Docker checks for the image `hello-world` locally.
+- If not found, it pulls it from DockerHub.
+- Then it runs a container from that image.
+
+**Expected Output:**
+```
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+```
+
+---
+
+### ✅ Step 3: List Running Containers
+
+```bash
+docker ps        # Shows only running containers
+docker ps -a     # Shows ALL containers (running + stopped)
+```
+
+---
+
+### ✅ Step 4: Remove the Container
+
+```bash
+docker container ls -a         # Get container ID or name
+docker container rm <id/name>  # Remove it
+```
+
+---
+
+### 🧹 Step 5: Clean Up Image (Optional)
+
+```bash
+docker image ls                # List all images
+docker image rm hello-world    # Remove the hello-world image
+```
+
+---
+
+## 🎓 Today’s Takeaways
+
+Docker is installed and working ✅
+
+You understand:
+- Images 🧱
+- Containers 📦
+- Docker commands ⚙️
+
+You ran and cleaned up your first container 🎉
+
