@@ -127,3 +127,100 @@ Steps:
 These are beginner-level troubleshooting questions every AWS practitioner should master before moving to networking, scaling, and automation scenarios.
 
 ---
+
+# 🟢 AWS EC2 Scenario-Based Questions – Intermediate Level
+
+These questions address common architectural and operational challenges involving EC2 in AWS, with best practices for networking, security, and scalability.
+
+---
+
+### ❓ **1. You launched multiple EC2 instances in a private subnet. They need to access the internet to download updates. How would you set this up securely?**
+
+### ✅ **Answer:**
+
+To enable EC2 instances in a **private subnet** to securely access the **internet** (e.g., to download software updates), follow these steps:
+
+#### 🔒 Use a NAT Gateway (Secure & Managed)
+1. **Create a NAT Gateway** in a **public subnet**.
+2. **Attach an Elastic IP** to the NAT Gateway for internet access.
+3. **Update route table** of the **private subnet**:
+   - Add a route: `0.0.0.0/0 → NAT Gateway ID`.
+4. **Ensure Security Groups and NACLs** allow outbound HTTPS (port 443) traffic.
+
+#### ✅ Why NAT Gateway?
+- **Secure**: EC2 instances remain in the private subnet (not directly exposed).
+- **Managed Service**: AWS handles high availability and scaling.
+- **No inbound access** is allowed to private EC2 instances from the internet.
+
+#### 🛑 Avoid:
+- Avoid assigning public IPs to private subnet instances.
+- Avoid using a NAT **instance** unless there's a strong cost constraint and management capability.
+
+---
+
+### ❓ **2. Your EC2 instance needs to read files from an S3 bucket. What are the secure and scalable ways to allow this access without storing AWS credentials on the instance?**
+
+### ✅ **Answer:**
+
+To securely grant S3 access to an EC2 instance **without hardcoding credentials**, use **IAM Roles** and **Instance Profiles**.
+
+#### 🔐 Steps:
+1. **Create an IAM Role**:
+   - Attach a policy with least privilege (e.g., read-only access to the S3 bucket):
+     ```json
+     {
+       "Effect": "Allow",
+       "Action": ["s3:GetObject"],
+       "Resource": ["arn:aws:s3:::your-bucket-name/*"]
+     }
+     ```
+2. **Attach the IAM Role to the EC2 instance**:
+   - Either during instance launch or later using the EC2 console/CLI.
+3. **Access S3 from the instance** using AWS SDKs, CLI, or tools (e.g., `aws s3 cp`).
+
+#### 📈 Benefits:
+- **No credentials** are stored on the instance.
+- **Auto-rotated temporary credentials** are provided via the EC2 metadata service (`http://169.254.169.254`).
+- **Scalable**: Works for any number of instances with the role.
+
+---
+
+### ❓ **3. An EC2 instance hosting a web app is under heavy traffic. What steps can you take to handle the load without downtime?**
+
+### ✅ **Answer:**
+
+To handle heavy traffic and ensure **high availability and scalability**, follow these practices:
+
+#### ⚙️ Step-by-step Strategy:
+
+1. **Use an Elastic Load Balancer (ELB)**:
+   - Distribute traffic across multiple EC2 instances.
+   - Improves fault tolerance and availability.
+
+2. **Auto Scaling Group (ASG)**:
+   - Automatically add/remove EC2 instances based on CPU, memory, or request metrics.
+   - Define minimum, desired, and maximum capacity.
+
+3. **Use Amazon CloudFront (CDN)**:
+   - Cache static content at edge locations.
+   - Reduces load on EC2 and improves latency for global users.
+
+4. **Enable Caching (App Level)**:
+   - Use services like **Amazon ElastiCache** (Redis/Memcached).
+   - Reduces repeated database or compute operations.
+
+5. **Database Optimization**:
+   - Use **Amazon RDS** with **read replicas** or **Aurora Auto Scaling**.
+   - Offload read traffic from primary DB.
+
+6. **Monitor with CloudWatch**:
+   - Set alarms and auto scale triggers.
+   - Diagnose and act on bottlenecks quickly.
+
+#### ☁️ Optional Enhancements:
+- Migrate to **containerized architecture** (ECS/Fargate or EKS).
+- Use **Application Load Balancer (ALB)** for path-based routing.
+
+---
+
+
