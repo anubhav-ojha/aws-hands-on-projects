@@ -1,0 +1,25 @@
+# Terraform state files
+*.tfstate
+*.tfstate.backup
+*.tfplan
+
+# Sensitive Terraform data
+.terraform/
+.terraform.lock.hcl
+
+# User-specific files
+*.log
+*.bak
+*.swp
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Python cache if you store log script
+__pycache__/
+
+# Secrets or AWS credentials (NEVER store these)
+*.pem
+*.env
+*.key

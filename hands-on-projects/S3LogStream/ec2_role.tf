@@ -13,6 +13,15 @@ resource "aws_iam_role" "ec2_s3_log_processor" {
   })
 }
 
+resource "aws_s3_bucket_public_access_block" "public_access" {
+  bucket = aws_s3_bucket.website.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
 resource "aws_iam_role_policy_attachment" "s3_access_attach" {
   role       = aws_iam_role.ec2_s3_log_processor.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"

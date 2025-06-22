@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>404 - Page Not Found</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="styles.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f2f2f2;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .error-container {
+      max-width: 600px;
+    }
+
+    h1 {
+      font-size: 6rem;
+      margin-bottom: 10px;
+      color: #007acc;
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+
+    a {
+      background: #007acc;
+      color: white;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+kw
+    a:hover {
+      background: #005c99;
+    }
+  </style>
+</head>
+<body>
+  <div class="error-container">
+    <h1>404</h1>
+    <h2>Page Not Found</h2>
+    <p>Oops! The page you are looking for doesn't exist or has been moved.</p>
+    <a href="index.html">← Back to Home</a>
+  </div>
+</body>
+</html>
+<!-- This is a simple 404 error page for the S3 static website. -->
+<!-- It provides a user-friendly message and a link to return to the homepage. -->
+<!-- The styles are inline for simplicity, but you can move them to a separate CSS file if desired. -->
+<!-- Make sure to upload this file to your S3 bucket as 'error.html' -->
+<!-- and configure your S3 bucket to use this as the error document in the static website settings
