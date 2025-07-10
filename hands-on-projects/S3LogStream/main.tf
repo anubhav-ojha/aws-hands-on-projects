@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "eu-west-1" # Change as needed
+  region = "us-east-1" # Change as needed
 }
 
 # Create S3 Bucket for Access Logs
@@ -68,12 +68,11 @@ resource "aws_security_group" "ec2_sg" {
 
 # EC2 Instance
 resource "aws_instance" "log_parser" {
-  ami                    = "ami-01f23391a59163da9" # Amazon Linux 2 (us-east-1)
-  instance_type          = "t2.micro"     # Replace or make variable
+  ami                    = "ami-020cba7c55df1f615" # Amazon Linux 2 (us-east-1)
+  instance_type          = "t3.medium"     # Replace or make variable
   associate_public_ip_address = true
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
-  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
-  key_name               = "s3logstream-keypair"   # Add if you want SSH
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name  # Add if you want SSH
 
   user_data              = file("ec2/userdata.sh")
 

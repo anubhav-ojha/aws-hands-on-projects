@@ -2,6 +2,7 @@
 *.tfstate
 *.tfstate.backup
 *.tfplan
+*.info
 
 # Sensitive Terraform data
 .terraform/
