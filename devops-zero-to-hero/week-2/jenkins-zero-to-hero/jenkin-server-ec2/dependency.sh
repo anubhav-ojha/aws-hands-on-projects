@@ -7,12 +7,15 @@
 # 1. Install Docker
 # 2. Start and enable Docker service
 # 3. Add current user to docker group
-# 4. Pull Jenkins official Docker image
-# 5. Run Jenkins in a Docker container
+# 4. Exit and ask user to reconnect
+# 5. (Upon rerun) Pull Jenkins image and start container
 # -----------------------------
 
 # Exit if any command fails
 set -e
+
+# File marker to check if docker group step was completed
+MARKER_FILE="/tmp/.docker_group_done"
 
 echo "========== Updating system =========="
 sudo apt update -y
@@ -41,8 +44,19 @@ echo "========== Starting Docker service =========="
 sudo systemctl start docker
 sudo systemctl enable docker
 
-echo "========== Adding user 'ubuntu' to docker group =========="
-sudo usermod -aG docker ubuntu
+# Check if docker group step has been done already
+if [ ! -f "$MARKER_FILE" ]; then
+  echo "========== Adding user 'ubuntu' to docker group =========="
+  sudo usermod -aG docker ubuntu
+  touch "$MARKER_FILE"
+  echo ""
+  echo "======================================================"
+  echo "✅ User 'ubuntu' added to docker group."
+  echo "🔁 Please logout and SSH back into the EC2 instance, then re-run this script."
+  echo "🛑 Exiting now to apply group changes..."
+  echo "======================================================"
+  exit 0
+fi
 
 echo "========== Pulling official Jenkins image =========="
 docker pull jenkins/jenkins:lts
@@ -53,5 +67,8 @@ docker run -d --name jenkins \
   -v jenkins_home:/var/jenkins_home \
   jenkins/jenkins:lts
 
-echo "========== Jenkins is running on port 8080 =========="
-echo "Access it using: http://<EC2-PUBLIC-IP>:8080"
+echo "========== ✅ Jenkins is running on port 8080 =========="
+echo "Open your browser and visit: http://<EC2-PUBLIC-IP>:8080"
+echo "You can find the Jenkins initial admin password using:"
+echo "docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword"
+echo "======================================================"

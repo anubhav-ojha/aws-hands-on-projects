@@ -1,0 +1,108 @@
+# ====================================================
+# Step-by-Step: Deploy Jenkins on EC2 using Terraform
+# ====================================================
+
+==================================
+🔧 STEP 1: Launch EC2 via Terraform
+==================================
+
+1. Prepare your Terraform files:
+   - main.tf
+   - variables.tf
+   - outputs.tf
+   - terraform.tfvars
+
+   Example variable in terraform.tfvars:
+     key_name = "jenkins-KeyPair"
+
+2. Initialize Terraform:
+     terraform init
+
+3. Review the plan:
+     terraform plan
+
+4. Apply to create resources:
+     terraform apply
+
+5. After apply, note the public IP from output or run:
+     terraform output public_ip
+
+
+======================================
+🔐 STEP 2: Connect to the EC2 via SSH
+======================================
+
+1. From your local terminal:
+     ssh -i /path/to/jenkins-KeyPair.pem ubuntu@<public-ip>
+
+   (Replace <public-ip> with actual value from output)
+
+
+================================================
+📜 STEP 3: Upload and Run Docker + Jenkins Script
+================================================
+
+1. Copy the install script from your local system to EC2:
+     scp -i /path/to/jenkins-KeyPair.pem install_docker_jenkins.sh ubuntu@<public-ip>:
+
+2. SSH into the EC2 again if not already connected.
+
+3. Make the script executable:
+     chmod +x install_docker_jenkins.sh
+
+4. Run the script:
+     ./install_docker_jenkins.sh
+
+
+==================================================
+🌐 STEP 4: Access Jenkins in your Web Browser
+==================================================
+
+1. In your browser, go to:
+     http://<public-ip>:8080
+
+2. If the page doesn't load:
+   - Check security group inbound rules for port 8080
+   - Ensure Jenkins is running (`sudo docker ps`)
+   - Reboot Docker and Jenkins container if needed:
+       sudo systemctl restart docker
+       sudo docker restart jenkins
+
+3. To get the Jenkins admin password:
+     sudo docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+4. Paste the password into the Jenkins unlock screen.
+
+5. Choose "Install suggested plugins" and create your admin user.
+
+
+==================================
+🛑 OPTIONAL: Destroy Infrastructure
+==================================
+
+When you're done, clean up by running:
+
+    terraform destroy
+
+
+========================================
+✅ Troubleshooting Summary (Quick Fixes)
+========================================
+
+- Port 8080 not reachable?
+    → Check EC2 security group inbound rule for TCP 8080
+
+- Can't run docker commands?
+    → Use `sudo` or log out and log back in after group change
+
+- Jenkins container not running?
+    → Restart Docker and Jenkins:
+         sudo systemctl restart docker
+         sudo docker restart jenkins
+
+- Public IP not working?
+    → Confirm instance has a public IP and security group is open
+
+====================================================
+✅ Setup Complete — Jenkins is ready on your EC2 🚀
+====================================================
